@@ -28,6 +28,7 @@ import argparse
 import json
 import sys
 import traceback
+import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 try:  # 包内导入
@@ -139,6 +140,8 @@ class Handler(BaseHTTPRequestHandler):
                 "structuredContent": result, "isError": False}}
         if method == "ping":
             return {"jsonrpc": "2.0", "id": mid, "result": {}}
+        if mid is None:  # 通知类报文不需要响应
+            return None
         return {"jsonrpc": "2.0", "id": mid,
                 "error": {"code": -32601, "message": "不支持的方法：%s" % method}}
 
@@ -166,10 +169,26 @@ class Handler(BaseHTTPRequestHandler):
         except ValueError as e:
             return self._send(400, {"error": str(e)})
 
-        if path == "/rpc":
+        if path in ("/rpc", "/mcp"):
+            # /rpc 是宽松的 JSON-RPC；/mcp 额外实现 MCP Streamable HTTP 的必要细节：
+            #   - 通知（无 id）返回 202 且无响应体
+            #   - initialize 时下发 Mcp-Session-Id，后续请求若带上则原样回显
+            sid = self.headers.get("Mcp-Session-Id") or ""
             if isinstance(body, list):
-                return self._send(200, [self._rpc(m) for m in body])
-            return self._send(200, self._rpc(body))
+                payload = [self._rpc(m) for m in body]
+                return self._send(200, payload, {"Mcp-Session-Id": sid} if sid else None)
+
+            resp = self._rpc(body)
+            if resp is None:
+                extra = {"Mcp-Session-Id": sid or uuid.uuid4().hex}
+                return self._send(202, {}, extra)
+
+            extra = None
+            if sid:
+                extra = {"Mcp-Session-Id": sid}
+            elif path == "/mcp" and isinstance(body, dict) and body.get("method") == "initialize":
+                extra = {"Mcp-Session-Id": uuid.uuid4().hex}
+            return self._send(200, resp, extra)
 
         if path.startswith("/tools/"):
             name = path[len("/tools/"):]
