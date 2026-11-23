@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "dust-hazard-judge": {
+      "command": "python",
+      "args": [
+        "D:\\Files\\基层安全生产智能体\\app\\mcp\\server.py"
+      ],
+      "env": {
+        "PYTHONUTF8": "1",
+        "PYTHONIOENCODING": "utf-8"
+      }
+    }
+  }
+}

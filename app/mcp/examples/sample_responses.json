@@ -1,0 +1,1140 @@
+{
+  "base": "http://127.0.0.1:8091",
+  "generated_at": "本地运行自动生成",
+  "count": 14,
+  "records": [
+    {
+      "note": "用例1：什么都没说 -> 问领域",
+      "tool": "judge",
+      "request": {
+        "payload": {
+          "industry": "",
+          "facts": {}
+        }
+      },
+      "status": "OK",
+      "response": {
+        "verdict": "PENDING",
+        "stage": "need_industry",
+        "hits": [],
+        "pending": [],
+        "need_ask": [],
+        "ask_batch": [],
+        "ask_more": 0,
+        "checked": 0,
+        "render": "本次检查哪个领域？目前支持：粉尘涉爆。",
+        "facts_used": [],
+        "verdict_label": "待核实",
+        "stage_label": "待确认领域",
+        "engine_version": "2026-11-23 / flow e95493dc / ver 1794547987922",
+        "facts_warnings": []
+      }
+    },
+    {
+      "note": "用例2：说了粉尘 -> 让描述现场",
+      "tool": "judge",
+      "request": {
+        "payload": {
+          "industry": "粉尘",
+          "facts": {}
+        }
+      },
+      "status": "OK",
+      "response": {
+        "verdict": "PENDING",
+        "stage": "describe",
+        "hits": [],
+        "pending": [],
+        "na": [],
+        "need_ask": [],
+        "ask_batch": [],
+        "ask_more": 0,
+        "checked": 10,
+        "render": "现场发现哪些问题？哪些装置没装、哪些措施没落实、哪里不符合要求。",
+        "facts_used": [],
+        "verdict_label": "待核实",
+        "stage_label": "待描述现场",
+        "engine_version": "2026-11-23 / flow e95493dc / ver 1794547987922",
+        "facts_warnings": []
+      }
+    },
+    {
+      "note": "用例3：干式木粉尘除尘系统未装锁气卸灰 -> 构成（第十一条第（六）项）",
+      "tool": "judge",
+      "request": {
+        "facts": {
+          "dust_collector.type": "dry",
+          "dust_collector.dust_kind": "wood",
+          "dust_collector.control_measures": [
+            "vent"
+          ],
+          "dust_collector.no_ash_discharge": true
+        },
+        "industry": "粉尘涉爆"
+      },
+      "status": "OK",
+      "response": {
+        "verdict": "HIT",
+        "stage": "hit",
+        "hits": [
+          {
+            "clause_id": "DUST-10-006",
+            "verdict": "HIT",
+            "detail": "命中条件",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（六）项（应急管理部令第10号）",
+            "severity": "major",
+            "original": "铝镁等金属粉尘、木质粉尘的干式除尘系统未设置锁气卸灰装置的",
+            "evidence_required": [
+              "现场照片（卸灰口）",
+              "除尘设备图纸或铭牌"
+            ],
+            "disposal_ref": [
+              "安全生产法-第41条",
+              "安全生产法-第97条"
+            ],
+            "need_ask": []
+          }
+        ],
+        "pending": [
+          {
+            "clause_id": "DUST-10-001",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（一）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_area.layout_violation",
+                "question": "粉尘爆炸危险场所设在非框架结构的多层建(构)筑物内吗？场所内有没有员工宿舍、会议室、办公室、休息室等人员聚集场所？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-002",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（二）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_collector.mixed_shared",
+                "question": "不同类别的可燃性粉尘、可燃性粉尘与可燃气体等易加剧爆炸危险的介质，有没有共用一套除尘系统？不同建(构)筑物、不同防火分区有没有共用一套除尘系统，或者除尘系统互联互通？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-004",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（四）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_collector.positive_pressure",
+                "question": "铝镁等金属粉尘除尘系统用的是正压除尘方式吗？其他可燃性粉尘除尘系统采用正压吹送粉尘时，有没有采取火花探测消除等防范点燃源措施？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-005",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（五）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_collector.gravity_or_tunnel_duct",
+                "question": "除尘系统是不是用重力沉降室除尘，或者用干式巷道式构筑物作为除尘风道？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-007",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（七）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_area.electrical_not_proof",
+                "question": "除尘器、收尘仓等划分为 20 区的粉尘爆炸危险场所，电气设备是什么型？有没有防爆标志和防爆合格证？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-008",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（八）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "process.no_debris_removal",
+                "question": "粉碎、研磨、造粒等易产生机械点燃源的工艺设备前，有没有设置铁、石等杂物去除装置？木制品加工企业与砂光机连接的风管上，有没有设置火花探测消除装置？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-010",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（十）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust.cleaning_not_implemented",
+                "question": "粉尘清理制度有没有落实？作业现场积尘严重吗？"
+              }
+            ]
+          }
+        ],
+        "na": [
+          {
+            "clause_id": "DUST-10-009",
+            "verdict": "NA",
+            "detail": "不适用本条款",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（九）项（应急管理部令第10号）",
+            "need_ask": []
+          }
+        ],
+        "need_ask": [
+          {
+            "field": "dust_collector.mixed_shared",
+            "question": "不同类别的可燃性粉尘、可燃性粉尘与可燃气体等易加剧爆炸危险的介质，有没有共用一套除尘系统？不同建(构)筑物、不同防火分区有没有共用一套除尘系统，或者除尘系统互联互通？"
+          },
+          {
+            "field": "dust_collector.positive_pressure",
+            "question": "铝镁等金属粉尘除尘系统用的是正压除尘方式吗？其他可燃性粉尘除尘系统采用正压吹送粉尘时，有没有采取火花探测消除等防范点燃源措施？"
+          },
+          {
+            "field": "dust_collector.gravity_or_tunnel_duct",
+            "question": "除尘系统是不是用重力沉降室除尘，或者用干式巷道式构筑物作为除尘风道？"
+          },
+          {
+            "field": "dust_area.layout_violation",
+            "question": "粉尘爆炸危险场所设在非框架结构的多层建(构)筑物内吗？场所内有没有员工宿舍、会议室、办公室、休息室等人员聚集场所？"
+          },
+          {
+            "field": "dust.cleaning_not_implemented",
+            "question": "粉尘清理制度有没有落实？作业现场积尘严重吗？"
+          },
+          {
+            "field": "process.no_debris_removal",
+            "question": "粉碎、研磨、造粒等易产生机械点燃源的工艺设备前，有没有设置铁、石等杂物去除装置？木制品加工企业与砂光机连接的风管上，有没有设置火花探测消除装置？"
+          },
+          {
+            "field": "dust_area.electrical_not_proof",
+            "question": "除尘器、收尘仓等划分为 20 区的粉尘爆炸危险场所，电气设备是什么型？有没有防爆标志和防爆合格证？"
+          }
+        ],
+        "ask_batch": [
+          {
+            "field": "dust_collector.mixed_shared",
+            "question": "不同类别的可燃性粉尘、可燃性粉尘与可燃气体等易加剧爆炸危险的介质，有没有共用一套除尘系统？不同建(构)筑物、不同防火分区有没有共用一套除尘系统，或者除尘系统互联互通？"
+          },
+          {
+            "field": "dust_collector.positive_pressure",
+            "question": "铝镁等金属粉尘除尘系统用的是正压除尘方式吗？其他可燃性粉尘除尘系统采用正压吹送粉尘时，有没有采取火花探测消除等防范点燃源措施？"
+          }
+        ],
+        "ask_more": 5,
+        "checked": 9,
+        "render": "构成重大事故隐患。\n依据：工贸企业重大事故隐患判定标准 第十一条 第（六）项（应急管理部令第10号）\n原文：铝镁等金属粉尘、木质粉尘的干式除尘系统未设置锁气卸灰装置的",
+        "facts_used": [
+          "dust_collector.control_measures",
+          "dust_collector.dust_kind",
+          "dust_collector.no_ash_discharge",
+          "dust_collector.type"
+        ],
+        "verdict_label": "构成重大事故隐患",
+        "stage_label": "构成重大隐患",
+        "engine_version": "2026-11-23 / flow e95493dc / ver 1794547987922",
+        "facts_warnings": []
+      }
+    },
+    {
+      "note": "用例4：作业现场积尘严重 -> 构成（第十一条第（十）项）",
+      "tool": "judge",
+      "request": {
+        "facts": {
+          "dust.cleaning_not_implemented": true
+        },
+        "industry": "粉尘涉爆"
+      },
+      "status": "OK",
+      "response": {
+        "verdict": "HIT",
+        "stage": "hit",
+        "hits": [
+          {
+            "clause_id": "DUST-10-010",
+            "verdict": "HIT",
+            "detail": "命中条件",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（十）项（应急管理部令第10号）",
+            "severity": "major",
+            "original": "未落实粉尘清理制度，造成作业现场积尘严重的",
+            "evidence_required": [
+              "现场照片（积尘部位）",
+              "粉尘清理制度",
+              "清理记录"
+            ],
+            "disposal_ref": [
+              "安全生产法-第41条",
+              "安全生产法-第97条"
+            ],
+            "need_ask": []
+          }
+        ],
+        "pending": [
+          {
+            "clause_id": "DUST-10-001",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（一）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_area.layout_violation",
+                "question": "粉尘爆炸危险场所设在非框架结构的多层建(构)筑物内吗？场所内有没有员工宿舍、会议室、办公室、休息室等人员聚集场所？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-002",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（二）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_collector.mixed_shared",
+                "question": "不同类别的可燃性粉尘、可燃性粉尘与可燃气体等易加剧爆炸危险的介质，有没有共用一套除尘系统？不同建(构)筑物、不同防火分区有没有共用一套除尘系统，或者除尘系统互联互通？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-003",
+            "verdict": "PENDING",
+            "detail": "前置条件待确认",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（三）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_collector.type",
+                "question": "现场除尘系统是干式还是湿式？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-004",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（四）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_collector.positive_pressure",
+                "question": "铝镁等金属粉尘除尘系统用的是正压除尘方式吗？其他可燃性粉尘除尘系统采用正压吹送粉尘时，有没有采取火花探测消除等防范点燃源措施？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-005",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（五）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_collector.gravity_or_tunnel_duct",
+                "question": "除尘系统是不是用重力沉降室除尘，或者用干式巷道式构筑物作为除尘风道？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-006",
+            "verdict": "PENDING",
+            "detail": "前置条件待确认",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（六）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_collector.dust_kind",
+                "question": "这家企业产生的可燃性粉尘是铝镁等金属粉尘、木质粉尘，还是其他种类？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-007",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（七）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_area.electrical_not_proof",
+                "question": "除尘器、收尘仓等划分为 20 区的粉尘爆炸危险场所，电气设备是什么型？有没有防爆标志和防爆合格证？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-008",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（八）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "process.no_debris_removal",
+                "question": "粉碎、研磨、造粒等易产生机械点燃源的工艺设备前，有没有设置铁、石等杂物去除装置？木制品加工企业与砂光机连接的风管上，有没有设置火花探测消除装置？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-009",
+            "verdict": "PENDING",
+            "detail": "前置条件待确认",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（九）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_collector.dust_kind",
+                "question": "这家企业产生的可燃性粉尘是铝镁等金属粉尘、木质粉尘，还是其他种类？"
+              }
+            ]
+          }
+        ],
+        "na": [],
+        "need_ask": [
+          {
+            "field": "dust_area.layout_violation",
+            "question": "粉尘爆炸危险场所设在非框架结构的多层建(构)筑物内吗？场所内有没有员工宿舍、会议室、办公室、休息室等人员聚集场所？"
+          },
+          {
+            "field": "dust_collector.mixed_shared",
+            "question": "不同类别的可燃性粉尘、可燃性粉尘与可燃气体等易加剧爆炸危险的介质，有没有共用一套除尘系统？不同建(构)筑物、不同防火分区有没有共用一套除尘系统，或者除尘系统互联互通？"
+          },
+          {
+            "field": "dust_collector.positive_pressure",
+            "question": "铝镁等金属粉尘除尘系统用的是正压除尘方式吗？其他可燃性粉尘除尘系统采用正压吹送粉尘时，有没有采取火花探测消除等防范点燃源措施？"
+          },
+          {
+            "field": "dust_collector.gravity_or_tunnel_duct",
+            "question": "除尘系统是不是用重力沉降室除尘，或者用干式巷道式构筑物作为除尘风道？"
+          },
+          {
+            "field": "dust_collector.type",
+            "question": "现场除尘系统是干式还是湿式？"
+          },
+          {
+            "field": "dust_collector.dust_kind",
+            "question": "这家企业产生的可燃性粉尘是铝镁等金属粉尘、木质粉尘，还是其他种类？"
+          },
+          {
+            "field": "process.no_debris_removal",
+            "question": "粉碎、研磨、造粒等易产生机械点燃源的工艺设备前，有没有设置铁、石等杂物去除装置？木制品加工企业与砂光机连接的风管上，有没有设置火花探测消除装置？"
+          },
+          {
+            "field": "dust_area.electrical_not_proof",
+            "question": "除尘器、收尘仓等划分为 20 区的粉尘爆炸危险场所，电气设备是什么型？有没有防爆标志和防爆合格证？"
+          }
+        ],
+        "ask_batch": [
+          {
+            "field": "dust_area.layout_violation",
+            "question": "粉尘爆炸危险场所设在非框架结构的多层建(构)筑物内吗？场所内有没有员工宿舍、会议室、办公室、休息室等人员聚集场所？"
+          },
+          {
+            "field": "dust_collector.mixed_shared",
+            "question": "不同类别的可燃性粉尘、可燃性粉尘与可燃气体等易加剧爆炸危险的介质，有没有共用一套除尘系统？不同建(构)筑物、不同防火分区有没有共用一套除尘系统，或者除尘系统互联互通？"
+          }
+        ],
+        "ask_more": 6,
+        "checked": 10,
+        "render": "构成重大事故隐患。\n依据：工贸企业重大事故隐患判定标准 第十一条 第（十）项（应急管理部令第10号）\n原文：未落实粉尘清理制度，造成作业现场积尘严重的",
+        "facts_used": [
+          "dust.cleaning_not_implemented"
+        ],
+        "verdict_label": "构成重大事故隐患",
+        "stage_label": "构成重大隐患",
+        "engine_version": "2026-11-23 / flow e95493dc / ver 1794547987922",
+        "facts_warnings": []
+      }
+    },
+    {
+      "note": "用例5：只说了粉尘是木质 -> 信息不足，回待核实并追问",
+      "tool": "judge",
+      "request": {
+        "facts": {
+          "dust_collector.dust_kind": "wood"
+        },
+        "industry": "粉尘涉爆"
+      },
+      "status": "OK",
+      "response": {
+        "verdict": "PENDING",
+        "stage": "ask",
+        "hits": [],
+        "pending": [
+          {
+            "clause_id": "DUST-10-001",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（一）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_area.layout_violation",
+                "question": "粉尘爆炸危险场所设在非框架结构的多层建(构)筑物内吗？场所内有没有员工宿舍、会议室、办公室、休息室等人员聚集场所？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-002",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（二）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_collector.mixed_shared",
+                "question": "不同类别的可燃性粉尘、可燃性粉尘与可燃气体等易加剧爆炸危险的介质，有没有共用一套除尘系统？不同建(构)筑物、不同防火分区有没有共用一套除尘系统，或者除尘系统互联互通？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-003",
+            "verdict": "PENDING",
+            "detail": "前置条件待确认",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（三）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_collector.type",
+                "question": "现场除尘系统是干式还是湿式？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-004",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（四）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_collector.positive_pressure",
+                "question": "铝镁等金属粉尘除尘系统用的是正压除尘方式吗？其他可燃性粉尘除尘系统采用正压吹送粉尘时，有没有采取火花探测消除等防范点燃源措施？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-005",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（五）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_collector.gravity_or_tunnel_duct",
+                "question": "除尘系统是不是用重力沉降室除尘，或者用干式巷道式构筑物作为除尘风道？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-006",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（六）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_collector.no_ash_discharge",
+                "question": "铝镁等金属粉尘、木质粉尘的干式除尘系统，有没有设置锁气卸灰装置？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-007",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（七）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust_area.electrical_not_proof",
+                "question": "除尘器、收尘仓等划分为 20 区的粉尘爆炸危险场所，电气设备是什么型？有没有防爆标志和防爆合格证？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-008",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（八）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "process.no_debris_removal",
+                "question": "粉碎、研磨、造粒等易产生机械点燃源的工艺设备前，有没有设置铁、石等杂物去除装置？木制品加工企业与砂光机连接的风管上，有没有设置火花探测消除装置？"
+              }
+            ]
+          },
+          {
+            "clause_id": "DUST-10-010",
+            "verdict": "PENDING",
+            "detail": "信息不足: c1",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（十）项（应急管理部令第10号）",
+            "need_ask": [
+              {
+                "field": "dust.cleaning_not_implemented",
+                "question": "粉尘清理制度有没有落实？作业现场积尘严重吗？"
+              }
+            ]
+          }
+        ],
+        "na": [
+          {
+            "clause_id": "DUST-10-009",
+            "verdict": "NA",
+            "detail": "不适用本条款",
+            "basis": "工贸企业重大事故隐患判定标准 第十一条 第（九）项（应急管理部令第10号）",
+            "need_ask": []
+          }
+        ],
+        "need_ask": [
+          {
+            "field": "dust_collector.mixed_shared",
+            "question": "不同类别的可燃性粉尘、可燃性粉尘与可燃气体等易加剧爆炸危险的介质，有没有共用一套除尘系统？不同建(构)筑物、不同防火分区有没有共用一套除尘系统，或者除尘系统互联互通？"
+          },
+          {
+            "field": "dust_collector.positive_pressure",
+            "question": "铝镁等金属粉尘除尘系统用的是正压除尘方式吗？其他可燃性粉尘除尘系统采用正压吹送粉尘时，有没有采取火花探测消除等防范点燃源措施？"
+          },
+          {
+            "field": "dust_collector.gravity_or_tunnel_duct",
+            "question": "除尘系统是不是用重力沉降室除尘，或者用干式巷道式构筑物作为除尘风道？"
+          },
+          {
+            "field": "dust_collector.type",
+            "question": "现场除尘系统是干式还是湿式？"
+          },
+          {
+            "field": "dust_collector.no_ash_discharge",
+            "question": "铝镁等金属粉尘、木质粉尘的干式除尘系统，有没有设置锁气卸灰装置？"
+          },
+          {
+            "field": "dust_area.layout_violation",
+            "question": "粉尘爆炸危险场所设在非框架结构的多层建(构)筑物内吗？场所内有没有员工宿舍、会议室、办公室、休息室等人员聚集场所？"
+          },
+          {
+            "field": "dust.cleaning_not_implemented",
+            "question": "粉尘清理制度有没有落实？作业现场积尘严重吗？"
+          },
+          {
+            "field": "process.no_debris_removal",
+            "question": "粉碎、研磨、造粒等易产生机械点燃源的工艺设备前，有没有设置铁、石等杂物去除装置？木制品加工企业与砂光机连接的风管上，有没有设置火花探测消除装置？"
+          },
+          {
+            "field": "dust_area.electrical_not_proof",
+            "question": "除尘器、收尘仓等划分为 20 区的粉尘爆炸危险场所，电气设备是什么型？有没有防爆标志和防爆合格证？"
+          }
+        ],
+        "ask_batch": [
+          {
+            "field": "dust_collector.mixed_shared",
+            "question": "不同类别的可燃性粉尘、可燃性粉尘与可燃气体等易加剧爆炸危险的介质，有没有共用一套除尘系统？不同建(构)筑物、不同防火分区有没有共用一套除尘系统，或者除尘系统互联互通？"
+          },
+          {
+            "field": "dust_collector.positive_pressure",
+            "question": "铝镁等金属粉尘除尘系统用的是正压除尘方式吗？其他可燃性粉尘除尘系统采用正压吹送粉尘时，有没有采取火花探测消除等防范点燃源措施？"
+          }
+        ],
+        "ask_more": 7,
+        "checked": 9,
+        "render": "还有两点需要确认：\n1. 不同类别的可燃性粉尘、可燃性粉尘与可燃气体等易加剧爆炸危险的介质，有没有共用一套除尘系统？不同建(构)筑物、不同防火分区有没有共用一套除尘系统，或者除尘系统互联互通？\n2. 铝镁等金属粉尘除尘系统用的是正压除尘方式吗？其他可燃性粉尘除尘系统采用正压吹送粉尘时，有没有采取火花探测消除等防范点燃源措施？",
+        "facts_used": [
+          "dust_collector.dust_kind"
+        ],
+        "verdict_label": "待核实",
+        "stage_label": "待补充信息",
+        "engine_version": "2026-11-23 / flow e95493dc / ver 1794547987922",
+        "facts_warnings": []
+      }
+    },
+    {
+      "note": "用例6：未接入的领域 -> need_industry",
+      "tool": "judge",
+      "request": {
+        "payload": {
+          "industry": "有限空间",
+          "facts": {}
+        }
+      },
+      "status": "OK",
+      "response": {
+        "verdict": "PENDING",
+        "stage": "need_industry",
+        "hits": [],
+        "pending": [],
+        "need_ask": [],
+        "ask_batch": [],
+        "ask_more": 0,
+        "checked": 0,
+        "render": "「有限空间」暂未接入，目前支持：粉尘涉爆。",
+        "facts_used": [],
+        "verdict_label": "待核实",
+        "stage_label": "待确认领域",
+        "engine_version": "2026-11-23 / flow e95493dc / ver 1794547987922",
+        "facts_warnings": []
+      }
+    },
+    {
+      "note": "列出粉尘涉爆 10 条条款",
+      "tool": "list_clauses",
+      "request": {
+        "industry": "粉尘涉爆"
+      },
+      "status": "OK",
+      "response": {
+        "industry": [
+          "粉尘涉爆"
+        ],
+        "known_industries": [
+          "粉尘涉爆"
+        ],
+        "total": 10,
+        "clauses": [
+          {
+            "clause_id": "DUST-10-001",
+            "article": "第十一条 第（一）项",
+            "hazard_type": "status",
+            "severity": "major",
+            "status": "active",
+            "effective_time": "2023-05-15",
+            "fields": [
+              "dust_area.layout_violation"
+            ],
+            "evidence_required": [
+              "现场照片",
+              "施工图纸或场所平面布置图"
+            ]
+          },
+          {
+            "clause_id": "DUST-10-002",
+            "article": "第十一条 第（二）项",
+            "hazard_type": "status",
+            "severity": "major",
+            "status": "active",
+            "effective_time": "2023-05-15",
+            "fields": [
+              "dust_collector.mixed_shared"
+            ],
+            "evidence_required": [
+              "除尘系统管路图",
+              "现场管路照片"
+            ]
+          },
+          {
+            "clause_id": "DUST-10-003",
+            "article": "第十一条 第（三）项",
+            "hazard_type": "absence",
+            "severity": "major",
+            "status": "active",
+            "effective_time": "2023-05-15",
+            "fields": [
+              "dust_collector.type",
+              "dust_collector.control_measures"
+            ],
+            "evidence_required": [
+              "除尘系统类型证明",
+              "爆炸防控措施清单或现场照片"
+            ]
+          },
+          {
+            "clause_id": "DUST-10-004",
+            "article": "第十一条 第（四）项",
+            "hazard_type": "status",
+            "severity": "major",
+            "status": "active",
+            "effective_time": "2023-05-15",
+            "fields": [
+              "dust_collector.positive_pressure"
+            ],
+            "evidence_required": [
+              "现场照片（体现风机与除尘器位置）",
+              "除尘系统设计文件"
+            ]
+          },
+          {
+            "clause_id": "DUST-10-005",
+            "article": "第十一条 第（五）项",
+            "hazard_type": "status",
+            "severity": "major",
+            "status": "active",
+            "effective_time": "2023-05-15",
+            "fields": [
+              "dust_collector.gravity_or_tunnel_duct"
+            ],
+            "evidence_required": [
+              "现场照片（沉降室或风道）",
+              "除尘系统形式说明"
+            ]
+          },
+          {
+            "clause_id": "DUST-10-006",
+            "article": "第十一条 第（六）项",
+            "hazard_type": "absence",
+            "severity": "major",
+            "status": "active",
+            "effective_time": "2023-05-15",
+            "fields": [
+              "dust_collector.dust_kind",
+              "dust_collector.no_ash_discharge"
+            ],
+            "evidence_required": [
+              "现场照片（卸灰口）",
+              "除尘设备图纸或铭牌"
+            ]
+          },
+          {
+            "clause_id": "DUST-10-007",
+            "article": "第十一条 第（七）项",
+            "hazard_type": "behavior",
+            "severity": "major",
+            "status": "active",
+            "effective_time": "2023-05-15",
+            "fields": [
+              "dust_area.electrical_not_proof"
+            ],
+            "evidence_required": [
+              "设备铭牌防爆标志照片",
+              "防爆合格证",
+              "现场照片"
+            ]
+          },
+          {
+            "clause_id": "DUST-10-008",
+            "article": "第十一条 第（八）项",
+            "hazard_type": "absence",
+            "severity": "major",
+            "status": "active",
+            "effective_time": "2023-05-15",
+            "fields": [
+              "process.no_debris_removal"
+            ],
+            "evidence_required": [
+              "现场照片（进料口、风管探测装置）",
+              "工艺流程图"
+            ]
+          },
+          {
+            "clause_id": "DUST-10-009",
+            "article": "第十一条 第（九）项",
+            "hazard_type": "absence",
+            "severity": "major",
+            "status": "active",
+            "effective_time": "2023-05-15",
+            "fields": [
+              "dust_collector.dust_kind",
+              "dust_area.no_hydrogen_or_damp_proof"
+            ],
+            "evidence_required": [
+              "现场照片（通风与防潮设施）",
+              "粉尘种类证明"
+            ]
+          },
+          {
+            "clause_id": "DUST-10-010",
+            "article": "第十一条 第（十）项",
+            "hazard_type": "status",
+            "severity": "major",
+            "status": "active",
+            "effective_time": "2023-05-15",
+            "fields": [
+              "dust.cleaning_not_implemented"
+            ],
+            "evidence_required": [
+              "现场照片（积尘部位）",
+              "粉尘清理制度",
+              "清理记录"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "note": "查单条条款完整定义",
+      "tool": "clause_detail",
+      "request": {
+        "clause_id": "DUST-10-006"
+      },
+      "status": "OK",
+      "response": {
+        "found": true,
+        "clause_id": "DUST-10-006",
+        "source": {
+          "standard": "工贸企业重大事故隐患判定标准",
+          "decree": "应急管理部令第10号",
+          "article": "第十一条 第（六）项",
+          "original": "铝镁等金属粉尘、木质粉尘的干式除尘系统未设置锁气卸灰装置的",
+          "effective_time": "2023-05-15",
+          "status": "active",
+          "supersedes": "安监总管四〔2017〕129号 第四条 相应条款（已废止）"
+        },
+        "industry": [
+          "粉尘涉爆"
+        ],
+        "hazard_type": "absence",
+        "severity": "major",
+        "applicability": [
+          {
+            "id": "a1",
+            "desc": "属于铝镁等金属粉尘或木质粉尘",
+            "field": "dust_collector.dust_kind",
+            "op": "in",
+            "value": [
+              "metal",
+              "wood"
+            ],
+            "evidence": "工艺资料、粉尘性质检测报告",
+            "question": "这家企业产生的可燃性粉尘是铝镁等金属粉尘、木质粉尘，还是其他种类？"
+          }
+        ],
+        "conditions": {
+          "logic": "all",
+          "items": [
+            {
+              "id": "c1",
+              "desc": "未设置锁气卸灰装置",
+              "field": "dust_collector.no_ash_discharge",
+              "op": "eq",
+              "value": true,
+              "evidence": "现场照片（除尘器卸灰口）、设备图纸",
+              "question": "铝镁等金属粉尘、木质粉尘的干式除尘系统，有没有设置锁气卸灰装置？"
+            }
+          ]
+        },
+        "hit_when": true,
+        "evidence_required": [
+          "现场照片（卸灰口）",
+          "除尘设备图纸或铭牌"
+        ],
+        "disposal_ref": [
+          "安全生产法-第41条",
+          "安全生产法-第97条"
+        ],
+        "fields": [
+          "dust_collector.dust_kind",
+          "dust_collector.no_ash_discharge"
+        ],
+        "ask_rules": [
+          {
+            "field": "dust_collector.no_ash_discharge",
+            "op": "eq",
+            "value": true,
+            "question": "铝镁等金属粉尘、木质粉尘的干式除尘系统，有没有设置锁气卸灰装置？",
+            "evidence": "现场照片（除尘器卸灰口）、设备图纸"
+          }
+        ],
+        "meta": {
+          "created_by": "Chen Zeming",
+          "created_at": "2026-11-18",
+          "version": "0.2"
+        }
+      }
+    },
+    {
+      "note": "口语描述 -> 候选条款",
+      "tool": "clause_search",
+      "request": {
+        "text": "除尘器没装泄爆片，木屑积得厚",
+        "top_k": 3
+      },
+      "status": "OK",
+      "response": {
+        "matched": true,
+        "candidates": [
+          {
+            "clause_id": "DUST-10-003",
+            "article": "第十一条 第（三）项",
+            "original": "干式除尘系统未采取泄爆、惰化、抑爆等任一种爆炸防控措施的",
+            "score": 3.0,
+            "reasons": [
+              "现象关键词指向判定字段 dust_collector.control_measures"
+            ],
+            "fields": [
+              "dust_collector.type",
+              "dust_collector.control_measures"
+            ],
+            "missing_hint": "需补充字段：dust_collector.type、dust_collector.control_measures"
+          },
+          {
+            "clause_id": "DUST-10-010",
+            "article": "第十一条 第（十）项",
+            "original": "未落实粉尘清理制度，造成作业现场积尘严重的",
+            "score": 3.0,
+            "reasons": [
+              "现象关键词指向判定字段 dust.cleaning_not_implemented"
+            ],
+            "fields": [
+              "dust.cleaning_not_implemented"
+            ],
+            "missing_hint": "需补充字段：dust.cleaning_not_implemented"
+          }
+        ]
+      }
+    },
+    {
+      "note": "匹配不到任何条款 -> 明确说未命中，不硬套",
+      "tool": "clause_search",
+      "request": {
+        "text": "食堂卫生许可证过期了"
+      },
+      "status": "OK",
+      "response": {
+        "matched": false,
+        "message": "未匹配到明确条款，建议按「除尘系统类型」「防控措施」「积尘清理」三类进一步核实，不要硬套条款",
+        "candidates": []
+      }
+    },
+    {
+      "note": "校验库内条款结构",
+      "tool": "clause_check",
+      "request": {
+        "clause_id": "DUST-10-006"
+      },
+      "status": "OK",
+      "response": {
+        "ok": true,
+        "clause_id": "DUST-10-006",
+        "errors": [],
+        "warnings": [
+          {
+            "field": "clause_id",
+            "message": "条款库中已存在同编号条款，入库前需确认是替换还是新增版本"
+          }
+        ]
+      }
+    },
+    {
+      "note": "校验残缺条款 -> 拦截报错",
+      "tool": "clause_check",
+      "request": {
+        "clause": {
+          "clause_id": "DUST-10-999",
+          "source": {},
+          "industry": [],
+          "hazard_type": "bad",
+          "conditions": {
+            "logic": "all",
+            "items": []
+          }
+        }
+      },
+      "status": "OK",
+      "response": {
+        "ok": false,
+        "clause_id": "DUST-10-999",
+        "errors": [
+          {
+            "field": "severity",
+            "message": "缺少必填字段"
+          },
+          {
+            "field": "hit_when",
+            "message": "缺少必填字段"
+          },
+          {
+            "field": "source.standard",
+            "message": "来源字段缺失（判定依据无法溯源）"
+          },
+          {
+            "field": "source.decree",
+            "message": "来源字段缺失（判定依据无法溯源）"
+          },
+          {
+            "field": "source.article",
+            "message": "来源字段缺失（判定依据无法溯源）"
+          },
+          {
+            "field": "source.original",
+            "message": "来源字段缺失（判定依据无法溯源）"
+          },
+          {
+            "field": "source.effective_time",
+            "message": "来源字段缺失（判定依据无法溯源）"
+          },
+          {
+            "field": "source.status",
+            "message": "来源字段缺失（判定依据无法溯源）"
+          },
+          {
+            "field": "hazard_type",
+            "message": "取值应为 absence/behavior/status 之一"
+          },
+          {
+            "field": "conditions.items",
+            "message": "判定条件为空，条款不可执行"
+          }
+        ],
+        "warnings": [
+          {
+            "field": "source.supersedes",
+            "message": "未标注替代关系；建议注明被本条款替代的旧文件，便于从旧兼从轻"
+          }
+        ]
+      }
+    },
+    {
+      "note": "出文书：要素齐全 -> 生成草稿（带水印与签名位）",
+      "tool": "render_doc",
+      "request": {
+        "doc_type": "责令限期整改指令书",
+        "industry": "粉尘涉爆",
+        "facts": {
+          "dust.cleaning_not_implemented": true
+        },
+        "meta": {
+          "企业名称": "某木质家具厂",
+          "检查时间": "2026-11-23",
+          "检查地点": "一号生产车间",
+          "执法人员": "张三、李四",
+          "被检查人": "王五",
+          "整改期限": "2026-12-10"
+        }
+      },
+      "status": "OK",
+      "response": {
+        "ok": true,
+        "doc_type": "责令限期整改指令书",
+        "judge": {
+          "verdict": "HIT",
+          "stage": "hit",
+          "hits": [
+            "DUST-10-010"
+          ]
+        },
+        "missing_fields": [],
+        "draft": "【草稿】本文件由系统按规定模板生成，须经法定程序与审批后生效，不得直接作为正式文书使用。\n\n==============================================\n责令限期整改指令书\n==============================================\n\n被检查单位：某木质家具厂\n检查时间：2026-11-23\n检查地点：一号生产车间\n执法人员：张三、李四\n被检查人：王五\n\n----------------------------------------------\n一、判定结论\n构成重大事故隐患。\n依据：工贸企业重大事故隐患判定标准 第十一条 第（十）项（应急管理部令第10号）\n原文：未落实粉尘清理制度，造成作业现场积尘严重的\n\n二、认定依据（逐条）\n1. 工贸企业重大事故隐患判定标准 第十一条 第（十）项（应急管理部令第10号）\n   原文：未落实粉尘清理制度，造成作业现场积尘严重的\n   应附证据：现场照片（积尘部位）、粉尘清理制度、清理记录\n   处置依据：安全生产法-第41条、安全生产法-第97条\n\n三、整改要求\n1. 立即停止使用不符合要求的设施设备；\n2. 按上述依据完成整改，整改期限：2026-12-10；\n3. 整改完成后报请复查，未整改或整改不合格的依法处理。\n\n四、待核实事项\n- DUST-10-001：信息不足: c1\n- DUST-10-002：信息不足: c1\n- DUST-10-003：前置条件待确认\n- DUST-10-004：信息不足: c1\n- DUST-10-005：信息不足: c1\n- DUST-10-006：前置条件待确认\n- DUST-10-007：信息不足: c1\n- DUST-10-008：信息不足: c1\n- DUST-10-009：前置条件待确认\n\n----------------------------------------------\n执法人员签名：________________\n被检查人签收：________________",
+        "checks": {
+          "要素完整": true,
+          "含草稿水印": true,
+          "含签名位": true
+        }
+      }
+    },
+    {
+      "note": "出文书：要素缺失 -> 只给待补清单",
+      "tool": "render_doc",
+      "request": {
+        "doc_type": "现场检查记录",
+        "industry": "粉尘涉爆",
+        "facts": {
+          "dust.cleaning_not_implemented": true
+        },
+        "meta": {
+          "企业名称": "某木质家具厂"
+        }
+      },
+      "status": "OK",
+      "response": {
+        "ok": false,
+        "message": "关键要素缺失，仅输出待补充清单",
+        "missing_fields": [
+          "检查时间",
+          "检查地点",
+          "执法人员",
+          "被检查人"
+        ],
+        "judge": {
+          "verdict": "HIT",
+          "stage": "hit"
+        },
+        "checklist": [
+          "请补充：检查时间",
+          "请补充：检查地点",
+          "请补充：执法人员",
+          "请补充：被检查人"
+        ],
+        "draft": null
+      }
+    }
+  ]
+}

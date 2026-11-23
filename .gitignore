@@ -1,0 +1,29 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+.venv-*/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# ---- 编辑器 / 系统 ----
+.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ---- 本地运行产物 ----
+*.log
+.env
+.env.*
+cache/
+!app/cache/.gitkeep
+
+# ---- 浏览器/工具缓存 ----
+.dsh/
+node_modules/

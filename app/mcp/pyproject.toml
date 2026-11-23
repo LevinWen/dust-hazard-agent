@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dust-hazard-mcp"
+version = "1.0.0"
+description = "粉尘涉爆重大事故隐患判定工具集：MCP 服务 + HTTP 插件接口（确定性判定，零依赖）"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [{ name = "A5 基层安全生产智能体 · 计算机组" }]
+keywords = ["mcp", "agentarts", "safety-production", "dust-explosion", "rule-engine"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = []
+
+[project.scripts]
+dust-hazard-mcp = "dust_hazard_mcp.server:main"
+dust-hazard-http = "dust_hazard_mcp.http_server:main"
+
+[project.urls]
+Homepage = "https://github.com/LevinWen/dust-hazard-agent"
+
+[tool.setuptools.packages.find]
+include = ["dust_hazard_mcp*"]
+
+[tool.setuptools.package-data]
+dust_hazard_mcp = ["py.typed"]

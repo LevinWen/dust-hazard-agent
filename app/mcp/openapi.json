@@ -1,0 +1,295 @@
+{
+    "openapi":  "3.0.1",
+    "info":  {
+                 "title":  "粉尘涉爆重大事故隐患判定工具集",
+                 "version":  "1.0.0",
+                 "description":  "确定性判定引擎的 6 个工具：judge / list_clauses / clause_detail / clause_search / clause_check / render_doc。判定逻辑确定，同一输入永远得到同一结论。"
+             },
+    "servers":  [
+                    {
+                        "url":  "http://127.0.0.1:8091"
+                    }
+                ],
+    "paths":  {
+                  "/tools/judge":  {
+                                       "post":  {
+                                                    "operationId":  "judge",
+                                                    "summary":  "判定现场情况是否构成粉尘涉爆重大事故隐患。输入结构化事实，返回三态结论（构成/不构成/待核实）与给用户看的文本。不传事实",
+                                                    "description":  "判定现场情况是否构成粉尘涉爆重大事故隐患。输入结构化事实，返回三态结论（构成/不构成/待核实）与给用户看的文本。不传事实则返回追问或让执法人员描述现场。",
+                                                    "requestBody":  {
+                                                                        "required":  true,
+                                                                        "content":  {
+                                                                                        "application/json":  {
+                                                                                                                 "schema":  {
+                                                                                                                                "type":  "object",
+                                                                                                                                "properties":  {
+                                                                                                                                                   "facts":  {
+                                                                                                                                                                 "type":  "object",
+                                                                                                                                                                 "description":  "现场事实。键必须取自字段字典（如 dust_collector.type），没确认的键不要出现"
+                                                                                                                                                             },
+                                                                                                                                                   "industry":  {
+                                                                                                                                                                    "type":  [
+                                                                                                                                                                                 "string",
+                                                                                                                                                                                 "array"
+                                                                                                                                                                             ],
+                                                                                                                                                                    "items":  {
+                                                                                                                                                                                  "type":  "string"
+                                                                                                                                                                              },
+                                                                                                                                                                    "description":  "领域，如「粉尘涉爆」，可传字符串或数组"
+                                                                                                                                                                },
+                                                                                                                                                   "clause_ids":  {
+                                                                                                                                                                      "type":  "array",
+                                                                                                                                                                      "items":  {
+                                                                                                                                                                                    "type":  "string"
+                                                                                                                                                                                },
+                                                                                                                                                                      "description":  "只判定指定条款（可选，调试用）"
+                                                                                                                                                                  },
+                                                                                                                                                   "payload":  {
+                                                                                                                                                                   "type":  "string",
+                                                                                                                                                                   "description":  "上游大模型输出的原始 JSON 文本（可含 ```json 围栏）"
+                                                                                                                                                               }
+                                                                                                                                               }
+                                                                                                                            }
+                                                                                                             }
+                                                                                    }
+                                                                    },
+                                                    "responses":  {
+                                                                      "200":  {
+                                                                                  "description":  "工具返回",
+                                                                                  "content":  {
+                                                                                                  "application/json":  {
+                                                                                                                           "schema":  {
+                                                                                                                                          "type":  "object",
+                                                                                                                                          "description":  "工具输出，见各工具说明"
+                                                                                                                                      }
+                                                                                                                       }
+                                                                                              }
+                                                                              }
+                                                                  }
+                                                }
+                                   },
+                  "/tools/list_clauses":  {
+                                              "post":  {
+                                                           "operationId":  "list_clauses",
+                                                           "summary":  "列出某领域适用的条款清单（编号、条文、判定字段、证据要求）。不含判定条件细节，需要细节用 clause_detail。",
+                                                           "description":  "列出某领域适用的条款清单（编号、条文、判定字段、证据要求）。不含判定条件细节，需要细节用 clause_detail。",
+                                                           "requestBody":  {
+                                                                               "required":  true,
+                                                                               "content":  {
+                                                                                               "application/json":  {
+                                                                                                                        "schema":  {
+                                                                                                                                       "type":  "object",
+                                                                                                                                       "properties":  {
+                                                                                                                                                          "industry":  {
+                                                                                                                                                                           "type":  "string",
+                                                                                                                                                                           "description":  "领域，如「粉尘涉爆」；不传则返回全部"
+                                                                                                                                                                       },
+                                                                                                                                                          "include_text":  {
+                                                                                                                                                                               "type":  "boolean",
+                                                                                                                                                                               "default":  false,
+                                                                                                                                                                               "description":  "是否一并返回条文原文与处置依据"
+                                                                                                                                                                           }
+                                                                                                                                                      }
+                                                                                                                                   }
+                                                                                                                    }
+                                                                                           }
+                                                                           },
+                                                           "responses":  {
+                                                                             "200":  {
+                                                                                         "description":  "工具返回",
+                                                                                         "content":  {
+                                                                                                         "application/json":  {
+                                                                                                                                  "schema":  {
+                                                                                                                                                 "type":  "object",
+                                                                                                                                                 "description":  "工具输出，见各工具说明"
+                                                                                                                                             }
+                                                                                                                              }
+                                                                                                     }
+                                                                                     }
+                                                                         }
+                                                       }
+                                          },
+                  "/tools/clause_detail":  {
+                                               "post":  {
+                                                            "operationId":  "clause_detail",
+                                                            "summary":  "查询单条条款的完整定义：条文原文、判定条件、认定所需证据、处置依据、追问问句。",
+                                                            "description":  "查询单条条款的完整定义：条文原文、判定条件、认定所需证据、处置依据、追问问句。",
+                                                            "requestBody":  {
+                                                                                "required":  true,
+                                                                                "content":  {
+                                                                                                "application/json":  {
+                                                                                                                         "schema":  {
+                                                                                                                                        "type":  "object",
+                                                                                                                                        "properties":  {
+                                                                                                                                                           "clause_id":  {
+                                                                                                                                                                             "type":  "string",
+                                                                                                                                                                             "description":  "条款编号，如 DUST-10-003"
+                                                                                                                                                                         }
+                                                                                                                                                       },
+                                                                                                                                        "required":  [
+                                                                                                                                                         "clause_id"
+                                                                                                                                                     ]
+                                                                                                                                    }
+                                                                                                                     }
+                                                                                            }
+                                                                            },
+                                                            "responses":  {
+                                                                              "200":  {
+                                                                                          "description":  "工具返回",
+                                                                                          "content":  {
+                                                                                                          "application/json":  {
+                                                                                                                                   "schema":  {
+                                                                                                                                                  "type":  "object",
+                                                                                                                                                  "description":  "工具输出，见各工具说明"
+                                                                                                                                              }
+                                                                                                                               }
+                                                                                                      }
+                                                                                      }
+                                                                          }
+                                                        }
+                                           },
+                  "/tools/clause_search":  {
+                                               "post":  {
+                                                            "operationId":  "clause_search",
+                                                            "summary":  "把执法人员的口语描述（如「除尘器没装泄爆片」）映射到候选条款。词典优先；匹配不到会明确返回 matched=false，",
+                                                            "description":  "把执法人员的口语描述（如「除尘器没装泄爆片」）映射到候选条款。词典优先；匹配不到会明确返回 matched=false，不会硬套。",
+                                                            "requestBody":  {
+                                                                                "required":  true,
+                                                                                "content":  {
+                                                                                                "application/json":  {
+                                                                                                                         "schema":  {
+                                                                                                                                        "type":  "object",
+                                                                                                                                        "properties":  {
+                                                                                                                                                           "text":  {
+                                                                                                                                                                        "type":  "string",
+                                                                                                                                                                        "description":  "现场现象的口语描述"
+                                                                                                                                                                    },
+                                                                                                                                                           "industry":  {
+                                                                                                                                                                            "type":  "string",
+                                                                                                                                                                            "description":  "领域过滤（可选）"
+                                                                                                                                                                        },
+                                                                                                                                                           "top_k":  {
+                                                                                                                                                                         "type":  "integer",
+                                                                                                                                                                         "default":  3,
+                                                                                                                                                                         "description":  "最多返回几条候选"
+                                                                                                                                                                     }
+                                                                                                                                                       },
+                                                                                                                                        "required":  [
+                                                                                                                                                         "text"
+                                                                                                                                                     ]
+                                                                                                                                    }
+                                                                                                                     }
+                                                                                            }
+                                                                            },
+                                                            "responses":  {
+                                                                              "200":  {
+                                                                                          "description":  "工具返回",
+                                                                                          "content":  {
+                                                                                                          "application/json":  {
+                                                                                                                                   "schema":  {
+                                                                                                                                                  "type":  "object",
+                                                                                                                                                  "description":  "工具输出，见各工具说明"
+                                                                                                                                              }
+                                                                                                                               }
+                                                                                                      }
+                                                                                      }
+                                                                          }
+                                                        }
+                                           },
+                  "/tools/clause_check":  {
+                                              "post":  {
+                                                           "operationId":  "clause_check",
+                                                           "summary":  "校验条款定义是否可执行：必填结构、字段字典一致性、操作符白名单、证据与问句是否齐备、时效状态。用于条款入库前的结构校验闸",
+                                                           "description":  "校验条款定义是否可执行：必填结构、字段字典一致性、操作符白名单、证据与问句是否齐备、时效状态。用于条款入库前的结构校验闸门。",
+                                                           "requestBody":  {
+                                                                               "required":  true,
+                                                                               "content":  {
+                                                                                               "application/json":  {
+                                                                                                                        "schema":  {
+                                                                                                                                       "type":  "object",
+                                                                                                                                       "properties":  {
+                                                                                                                                                          "clause":  {
+                                                                                                                                                                         "type":  "object",
+                                                                                                                                                                         "description":  "待校验的条款 JSON"
+                                                                                                                                                                     },
+                                                                                                                                                          "clause_id":  {
+                                                                                                                                                                            "type":  "string",
+                                                                                                                                                                            "description":  "或直接给条款编号，校验库内已有条款"
+                                                                                                                                                                        }
+                                                                                                                                                      }
+                                                                                                                                   }
+                                                                                                                    }
+                                                                                           }
+                                                                           },
+                                                           "responses":  {
+                                                                             "200":  {
+                                                                                         "description":  "工具返回",
+                                                                                         "content":  {
+                                                                                                         "application/json":  {
+                                                                                                                                  "schema":  {
+                                                                                                                                                 "type":  "object",
+                                                                                                                                                 "description":  "工具输出，见各工具说明"
+                                                                                                                                             }
+                                                                                                                              }
+                                                                                                     }
+                                                                                     }
+                                                                         }
+                                                       }
+                                          },
+                  "/tools/render_doc":  {
+                                            "post":  {
+                                                         "operationId":  "render_doc",
+                                                         "summary":  "按模板生成执法文书草稿并做要素完整性校验。要素不全时只返回待补清单，不生成半成品文书。产出文本固定带「草稿」水印与签名位",
+                                                         "description":  "按模板生成执法文书草稿并做要素完整性校验。要素不全时只返回待补清单，不生成半成品文书。产出文本固定带「草稿」水印与签名位。",
+                                                         "requestBody":  {
+                                                                             "required":  true,
+                                                                             "content":  {
+                                                                                             "application/json":  {
+                                                                                                                      "schema":  {
+                                                                                                                                     "type":  "object",
+                                                                                                                                     "properties":  {
+                                                                                                                                                        "doc_type":  {
+                                                                                                                                                                         "type":  "string",
+                                                                                                                                                                         "enum":  [
+                                                                                                                                                                                      "现场检查记录",
+                                                                                                                                                                                      "责令限期整改指令书"
+                                                                                                                                                                                  ],
+                                                                                                                                                                         "description":  "文书类型"
+                                                                                                                                                                     },
+                                                                                                                                                        "facts":  {
+                                                                                                                                                                      "type":  "object",
+                                                                                                                                                                      "description":  "现场事实，同 judge"
+                                                                                                                                                                  },
+                                                                                                                                                        "industry":  {
+                                                                                                                                                                         "type":  "string",
+                                                                                                                                                                         "description":  "领域"
+                                                                                                                                                                     },
+                                                                                                                                                        "meta":  {
+                                                                                                                                                                     "type":  "object",
+                                                                                                                                                                     "description":  "文书要素：企业名称、检查时间、检查地点、执法人员、被检查人、整改期限"
+                                                                                                                                                                 }
+                                                                                                                                                    },
+                                                                                                                                     "required":  [
+                                                                                                                                                      "doc_type"
+                                                                                                                                                  ]
+                                                                                                                                 }
+                                                                                                                  }
+                                                                                         }
+                                                                         },
+                                                         "responses":  {
+                                                                           "200":  {
+                                                                                       "description":  "工具返回",
+                                                                                       "content":  {
+                                                                                                       "application/json":  {
+                                                                                                                                "schema":  {
+                                                                                                                                               "type":  "object",
+                                                                                                                                               "description":  "工具输出，见各工具说明"
+                                                                                                                                           }
+                                                                                                                            }
+                                                                                                   }
+                                                                                   }
+                                                                       }
+                                                     }
+                                        }
+              }
+}
