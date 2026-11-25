@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A5 基层安全生产智能体 · 隐患判定</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#fff; --line:#e3e6ea; --ink:#1b1f24; --ink-2:#5b6472; --ink-3:#8a94a3;
+    --brand:#1f4e79; --brand-2:#2d6cdf;
+    --hit:#c5221f; --hit-bg:#fdecea; --hit-line:#f3c4c1;
+    --miss:#137333; --miss-bg:#e6f4ea; --miss-line:#bfe1c9;
+    --pending:#a15c00; --pending-bg:#fef3e0; --pending-line:#f2d9a8;
+    --na:#5f6368; --na-bg:#f1f3f4; --na-line:#d7dbdf;
+    --radius:10px;
+    --mono: ui-monospace, SFMono-Regular, "Cascadia Mono", Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow-x:hidden}
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--sans); font-size:14px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{display:grid; grid-template-rows:auto minmax(0,1fr); height:100dvh;}
+
+  /* ---------- 顶栏 ---------- */
+  .topbar{
+    display:flex; align-items:center; gap:12px; padding:10px 16px;
+    background:var(--panel); border-bottom:1px solid var(--line);
+    position:sticky; top:0; z-index:20;
+  }
+  .brand{display:flex; align-items:center; gap:9px; font-weight:600; letter-spacing:.2px; white-space:nowrap}
+  .logo{
+    width:26px; height:26px; border-radius:7px; display:grid; place-items:center;
+    background:linear-gradient(140deg,#2d6cdf,#1f4e79); color:#fff; font-size:13px; font-weight:700;
+  }
+  .brand small{font-weight:400; color:var(--ink-3); margin-left:2px}
+  .spacer{flex:1}
+  .chain{
+    display:inline-flex; align-items:center; gap:7px; padding:5px 11px; border-radius:999px;
+    font-size:12.5px; border:1px solid var(--line); background:#fbfcfd; color:var(--ink-2);
+    white-space:nowrap; max-width:60vw; overflow:hidden; text-overflow:ellipsis;
+  }
+  .dot{width:8px; height:8px; border-radius:50%; background:var(--ink-3); flex:none}
+  .chain.ok .dot{background:#1e8e3e; box-shadow:0 0 0 3px #e6f4ea}
+  .chain.warn .dot{background:#e8a33d; box-shadow:0 0 0 3px #fef3e0}
+  .chain.bad .dot{background:#d93025; box-shadow:0 0 0 3px #fdecea}
+  .chain.live .dot{animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+  /* ---------- 主体 ---------- */
+  .main{
+    display:grid; grid-template-columns:minmax(330px,40%) minmax(0,1fr);
+    gap:14px; padding:14px; min-height:0; min-width:0; overflow:hidden;
+  }
+  .main > *{min-width:0}
+  .panel{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    display:flex; flex-direction:column; min-height:0; min-width:0; overflow:hidden;
+  }
+  .panel-head{
+    display:flex; align-items:center; gap:8px; padding:10px 14px;
+    border-bottom:1px solid var(--line); font-weight:600; font-size:13px; color:var(--ink-2);
+  }
+  .panel-head .hint{font-weight:400; color:var(--ink-3); font-size:12px}
+
+  /* ---------- 对话 ---------- */
+  .quick{display:flex; flex-wrap:wrap; gap:8px; padding:12px 14px 4px}
+  .chip{
+    border:1px solid var(--line); background:#fbfcfd; color:var(--ink-2); border-radius:999px;
+    padding:5px 12px; font-size:12.5px; cursor:pointer; transition:.15s; font-family:inherit;
+  }
+  .chip:hover{border-color:var(--brand-2); color:var(--brand-2); background:#eef4ff}
+  .stream{flex:1; overflow-y:auto; padding:12px 14px; display:flex; flex-direction:column; gap:12px}
+  .msg{display:flex; gap:9px; align-items:flex-start}
+  .msg .who{
+    flex:none; width:26px; height:26px; border-radius:7px; display:grid; place-items:center;
+    font-size:11px; font-weight:700; color:#fff; background:#9aa4b2;
+  }
+  .msg.user .who{background:#2d6cdf}
+  .msg.bot .who{background:#1f4e79}
+  .bubble{
+    background:#f3f5f8; border-radius:10px; padding:9px 12px; max-width:calc(100% - 44px);
+    white-space:pre-wrap; word-break:break-word;
+  }
+  .msg.user .bubble{background:#e8f0fe}
+  .bubble.muted{color:var(--ink-3); font-size:12.5px}
+  .composer{border-top:1px solid var(--line); padding:10px 12px; display:flex; gap:9px; align-items:flex-end}
+  .composer textarea{
+    flex:1; resize:none; min-height:44px; max-height:130px; padding:11px 12px; font:inherit;
+    border:1px solid var(--line); border-radius:9px; outline:none; background:#fbfcfd;
+  }
+  .composer textarea:focus{border-color:var(--brand-2); background:#fff}
+  .btn{
+    border:0; border-radius:9px; padding:11px 18px; font:inherit; font-weight:600; cursor:pointer;
+    background:var(--brand-2); color:#fff; white-space:nowrap;
+  }
+  .btn:disabled{background:#b9c3d1; cursor:not-allowed}
+  .btn.ghost{background:#fff; color:var(--ink-2); border:1px solid var(--line); font-weight:500; padding:7px 13px}
+  .btn.ghost:hover{border-color:var(--brand-2); color:var(--brand-2)}
+
+  /* ---------- 结论区 ---------- */
+  .tabs{display:flex; gap:4px; padding:8px 10px 0; border-bottom:1px solid var(--line); overflow-x:auto}
+  .tab{
+    border:0; background:transparent; padding:8px 14px 10px; font:inherit; font-size:13px; font-weight:600;
+    color:var(--ink-3); cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap;
+  }
+  .tab.on{color:var(--brand-2); border-bottom-color:var(--brand-2)}
+  .tab .n{font-weight:400; color:var(--ink-3); margin-left:4px}
+  .body{flex:1; overflow-y:auto; overflow-x:hidden; padding:14px; display:flex; flex-direction:column; gap:12px; min-width:0}
+
+  .verdict{border-radius:var(--radius); border:1px solid var(--line); padding:14px 16px; background:#fafbfc}
+  .verdict.hit{background:var(--hit-bg); border-color:var(--hit-line)}
+  .verdict.miss{background:var(--miss-bg); border-color:var(--miss-line)}
+  .verdict.pending{background:var(--pending-bg); border-color:var(--pending-line)}
+  .verdict.na{background:var(--na-bg); border-color:var(--na-line)}
+  .verdict .vt{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .verdict .big{font-size:19px; font-weight:700; letter-spacing:.3px}
+  .verdict.hit .big{color:var(--hit)} .verdict.miss .big{color:var(--miss)}
+  .verdict.pending .big{color:var(--pending)} .verdict.na .big{color:var(--na)}
+  .tag{
+    font-size:11.5px; padding:2px 9px; border-radius:999px; border:1px solid currentColor; opacity:.9;
+  }
+  .verdict .meta{margin-top:6px; font-size:12.5px; color:var(--ink-2)}
+
+  .render{
+    font-family:var(--mono); font-size:13px; line-height:1.75; white-space:pre-wrap;
+    overflow-wrap:anywhere; word-break:break-word; background:#fff; border:1px solid var(--line);
+    border-radius:9px; padding:13px 15px; margin:0; max-width:100%;
+  }
+  .sec-title{font-size:12.5px; font-weight:700; color:var(--ink-2); letter-spacing:.4px; margin:2px 0 -4px}
+
+  .acc{border:1px solid var(--line); border-radius:9px; background:#fff; overflow:hidden}
+  .acc > summary{
+    cursor:pointer; padding:10px 13px; font-weight:600; font-size:13px; list-style:none;
+    display:flex; align-items:center; gap:8px; background:#fbfcfd;
+  }
+  .acc > summary::-webkit-details-marker{display:none}
+  .acc > summary::before{content:"▸"; color:var(--ink-3); transition:.15s}
+  .acc[open] > summary::before{transform:rotate(90deg)}
+  .acc .inner{padding:11px 14px 14px; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:10px}
+  .clause{border-left:3px solid var(--hit); padding:8px 0 8px 12px; background:#fff}
+  .clause.p{border-left-color:var(--pending)}
+  .clause.n{border-left-color:var(--na)}
+  .clause .cid{font-family:var(--mono); font-size:12px; color:var(--brand-2); font-weight:700}
+  .clause .basis{font-size:12.5px; color:var(--ink-2); margin-top:2px}
+  .clause .orig{font-size:13px; margin-top:6px}
+  .kv{display:grid; grid-template-columns:auto 1fr; gap:5px 12px; font-size:12.5px}
+  .kv dt{color:var(--ink-3)} .kv dd{margin:0; word-break:break-word}
+
+  .empty{
+    border:1px dashed var(--line); border-radius:var(--radius); padding:34px 18px; text-align:center;
+    color:var(--ink-3); font-size:13px; background:#fbfcfd;
+  }
+  .json{
+    font-family:var(--mono); font-size:12px; white-space:pre-wrap; overflow-wrap:anywhere;
+    word-break:break-word; background:#0f1720; color:#d7e3f4; border-radius:9px; padding:13px;
+    margin:0; overflow:auto; max-height:340px; max-width:100%;
+  }
+  .row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+  .badge{
+    font-size:11.5px; padding:2px 8px; border-radius:6px; background:#eef2f7; color:var(--ink-2);
+    border:1px solid var(--line);
+  }
+  .badge.platform{background:#e8f0fe; color:#1a56c4; border-color:#c6d8fb}
+  .badge.local{background:#e6f4ea; color:#137333; border-color:#bfe1c9}
+  .badge.replay{background:#fef3e0; color:#a15c00; border-color:#f2d9a8}
+  .divider{height:1px; background:var(--line); margin:2px 0}
+
+  /* ---------- 移动端 ---------- */
+  @media (max-width:900px){
+    .main{
+      grid-template-columns:1fr; grid-template-rows:minmax(0,1fr) minmax(0,42%);
+      gap:10px; padding:10px;
+    }
+    .work{order:1} .chat{order:2}
+    .topbar{padding:8px 12px; gap:8px}
+    .brand small{display:none}
+    .chain{max-width:none; font-size:11.5px}
+    .bubble{max-width:100%}
+    .verdict .big{font-size:17px}
+    .json{max-height:200px}
+    .composer textarea{min-height:40px}
+  }
+  @media (max-width:520px){
+    .tab{padding:8px 10px 9px; font-size:12.5px}
+    .body{padding:11px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">A5</span>
+      <span>基层安全生产智能体<small>·粉尘涉爆隐患判定</small></span>
+    </div>
+    <div class="spacer"></div>
+    <div class="chain" id="chain"><span class="dot"></span><span id="chainText">就绪</span></div>
+  </header>
+
+  <div class="main">
+    <!-- 左：对话 -->
+    <section class="panel chat">
+      <div class="panel-head">
+        现场问询
+        <span class="hint">说人话就行，系统负责翻译成条款</span>
+      </div>
+      <div class="quick" id="quick"></div>
+      <div class="stream" id="stream">
+        <div class="msg bot">
+          <div class="who">安</div>
+          <div class="bubble">本次检查哪个领域？目前支持：<b>粉尘涉爆</b>。<br>
+            可以直接说现场情况，例如「我们是做木质家具的，车间木屑积得比较厚，清理制度也没落实」。</div>
+        </div>
+      </div>
+      <div class="composer">
+        <textarea id="input" rows="1" placeholder="说说现场情况…（Enter 发送，Shift+Enter 换行）"></textarea>
+        <button class="btn" id="send">发送</button>
+      </div>
+    </section>
+
+    <!-- 右：结论 -->
+    <section class="panel work">
+      <nav class="tabs">
+        <button class="tab on" data-tab="verdict">判定卡片</button>
+        <button class="tab" data-tab="chain">依据链<span class="n" id="chainCount"></span></button>
+        <button class="tab" data-tab="diag">诊断</button>
+      </nav>
+
+      <div class="body" id="tab-verdict">
+        <div class="empty">左侧输入现场情况后，这里显示判定结论。<br>结论文本由判定引擎原样返回，不做任何改写。</div>
+      </div>
+
+      <div class="body" id="tab-chain" style="display:none">
+        <div class="empty">暂无依据链。命中条款、待核实事项、不适用条款都会显示在这里。</div>
+      </div>
+
+      <div class="body" id="tab-diag" style="display:none">
+        <div class="empty">暂无诊断信息。这里会显示本次走的链路、耗时、引擎版本和原始返回。</div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const $ = (s, r) => (r || document).querySelector(s);
+  const el = (tag, cls, txt) => {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (txt != null) e.textContent = txt;
+    return e;
+  };
+
+  const STAGE_LABEL = {
+    need_industry: "待确认领域", describe: "待描述现场", ask: "待补充信息",
+    hit: "构成重大隐患", miss: "未发现", na: "不适用", error: "入参错误"
+  };
+  const VERDICT_LABEL = {
+    HIT: "构成重大事故隐患", MISS: "不构成重大事故隐患",
+    PENDING: "待核实", NA: "不适用", ERROR: "错误"
+  };
+  const VERDICT_CLS = { HIT: "hit", MISS: "miss", PENDING: "pending", NA: "na" };
+
+  const QUICK = [
+    { label: "木质家具 · 积尘严重", text: "我们是做木质家具的，车间里木屑积得比较厚，清理制度也没落实" },
+    { label: "干式除尘 · 无锁气卸灰", text: "木粉尘车间用的是干式除尘系统，没装锁气卸灰装置" },
+    { label: "只说粉尘 · 信息不足", text: "我们是生产车间，有粉尘" },
+    { label: "湿式除尘", text: "我们是木质家具厂，除尘系统是湿式的" }
+  ];
+
+  // 断网兜底样本（与真实返回同结构）
+  const REPLAY = {
+    hit: {
+      verdict: "HIT", stage: "hit",
+      render: "构成重大事故隐患。\n依据：工贸企业重大事故隐患判定标准 第十一条 第（十）项（应急管理部令第10号）\n原文：未落实粉尘清理制度，造成作业现场积尘严重的",
+      hits: [{
+        clause_id: "DUST-10-010",
+        basis: "工贸企业重大事故隐患判定标准 第十一条 第（十）项（应急管理部令第10号）",
+        original: "未落实粉尘清理制度，造成作业现场积尘严重的",
+        evidence_required: ["现场照片（积尘部位）", "粉尘清理制度", "清理记录"],
+        disposal_ref: ["安全生产法-第41条", "安全生产法-第97条"]
+      }],
+      pending: [], na: [], need_ask: [], ask_batch: [], ask_more: 0, checked: 9,
+      facts_used: ["dust.cleaning_not_implemented"],
+      verdict_label: "构成重大事故隐患", stage_label: "构成重大隐患",
+      engine_version: "replay-sample"
+    },
+    ask: {
+      verdict: "PENDING", stage: "ask",
+      render: "还有两点需要确认：\n1. 不同类别的可燃性粉尘、可燃性粉尘与可燃气体等易加剧爆炸危险的介质，有没有共用一套除尘系统？\n2. 铝镁等金属粉尘除尘系统用的是正压除尘方式吗？",
+      hits: [], pending: [{ clause_id: "DUST-10-002", detail: "信息不足" }], na: [],
+      need_ask: [{ field: "dust_collector.mixed_shared", question: "有没有共用一套除尘系统？" }],
+      ask_batch: [{ field: "dust_collector.mixed_shared", question: "有没有共用一套除尘系统？" }],
+      ask_more: 5, checked: 9, facts_used: ["dust_collector.dust_kind"],
+      verdict_label: "待核实", stage_label: "待补充信息", engine_version: "replay-sample"
+    },
+    need: {
+      verdict: "PENDING", stage: "need_industry",
+      render: "本次检查哪个领域？目前支持：粉尘涉爆。",
+      hits: [], pending: [], na: [], need_ask: [], ask_batch: [], ask_more: 0, checked: 0,
+      facts_used: [], verdict_label: "待核实", stage_label: "待确认领域",
+      engine_version: "replay-sample"
+    }
+  };
+
+  let sessionId = (localStorage.getItem("a5_session") || "").trim();
+  if (!sessionId) {
+    sessionId = Math.random().toString(16).slice(2, 18);
+    localStorage.setItem("a5_session", sessionId);
+  }
+
+  // ---------------- 状态条 ----------------
+  const chainBox = $("#chain"), chainText = $("#chainText");
+  function setChain(kind, text){
+    chainBox.className = "chain " + (kind || "");
+    chainText.textContent = text;
+  }
+
+  // ---------------- 消息 ----------------
+  const stream = $("#stream");
+  function addMsg(role, text, opts){
+    const wrap = el("div", "msg " + role);
+    wrap.appendChild(el("div", "who", role === "user" ? "我" : "安"));
+    const b = el("div", "bubble" + (opts && opts.muted ? " muted" : ""));
+    b.textContent = text;
+    wrap.appendChild(b);
+    stream.appendChild(wrap);
+    stream.scrollTop = stream.scrollHeight;
+    return b;
+  }
+
+  // ---------------- 网络 ----------------
+  function postJSON(url, body){
+    return fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body || {})
+    }).then(async r => {
+      const t = await r.text();
+      let j = null;
+      try { j = JSON.parse(t); } catch (e) {}
+      return { status: r.status, ok: r.ok, json: j, raw: t };
+    });
+  }
+
+  // ---------------- 渲染 ----------------
+  function renderVerdict(res, source){
+    const box = $("#tab-verdict");
+    box.innerHTML = "";
+
+    const v = res.verdict || "PENDING";
+    const cls = VERDICT_CLS[v] || "pending";
+    const card = el("div", "verdict " + cls);
+    const vt = el("div", "vt");
+    vt.appendChild(el("div", "big", res.verdict_label || VERDICT_LABEL[v] || v));
+    vt.appendChild(el("span", "tag", res.stage_label || STAGE_LABEL[res.stage] || res.stage || ""));
+    if (source) {
+      const b = el("span", "tag", source === "platform" ? "平台返回" : "同源引擎");
+      vt.appendChild(b);
+    }
+    card.appendChild(vt);
+
+    const meta = el("div", "meta");
+    const bits = [];
+    if (typeof res.checked === "number") bits.push("已判定 " + res.checked + " 条");
+    if (typeof res.ask_more === "number" && res.ask_more > 0) bits.push("还有 " + res.ask_more + " 项待确认");
+    if (res.engine_version) bits.push(res.engine_version);
+    meta.textContent = bits.join(" · ");
+    if (bits.length) card.appendChild(meta);
+    box.appendChild(card);
+
+    // render 原样输出（红线：不做任何改写）
+    const pre = el("pre", "render");
+    pre.textContent = res.render || "（引擎未返回文本）";
+    box.appendChild(pre);
+  }
+
+  function renderPlatformText(p){
+    const box = $("#tab-verdict");
+    const wrap = el("div", "verdict pending");
+    const vt = el("div", "vt");
+    vt.appendChild(el("div", "big", "平台返回（对照）"));
+    vt.appendChild(el("span", "tag", "AgentArts 工作流"));
+    wrap.appendChild(vt);
+    const m = el("div", "meta");
+    m.textContent = "耗时 " + (p.latency_ms != null ? (p.latency_ms / 1000).toFixed(1) + "s" : "未知")
+      + " · 事件 " + (p.events || 0) + " 个";
+    wrap.appendChild(m);
+    box.appendChild(wrap);
+
+    const pre = el("pre", "render");
+    pre.textContent = p.text || "（平台返回为空）";
+    box.appendChild(pre);
+  }
+
+  function renderChain(res){
+    const box = $("#tab-chain");
+    box.innerHTML = "";
+    $("#chainCount").textContent = "";
+
+    const hits = res.hits || [], pend = res.pending || [], na = res.na || [];
+    $("#chainCount").textContent = (hits.length + pend.length + na.length) ? String(hits.length + pend.length + na.length) : "";
+
+    if (!hits.length && !pend.length && !na.length) {
+      box.appendChild(el("div", "empty",
+        res.stage === "describe" ? "尚未进入条款判定。先描述现场发现的问题。"
+        : res.stage === "need_industry" ? "尚未识别检查领域。"
+        : "没有命中、待核实或不适用条款。"));
+      return;
+    }
+
+    if (hits.length) {
+      box.appendChild(el("div", "sec-title", "命中条款（" + hits.length + "）"));
+      const acc = el("details", "acc");
+      acc.open = true;
+      acc.appendChild(el("summary", null, "构成重大事故隐患的依据"));
+      const inner = el("div", "inner");
+      hits.forEach(h => {
+        const c = el("div", "clause");
+        c.appendChild(el("div", "cid", h.clause_id || ""));
+        if (h.basis) c.appendChild(el("div", "basis", h.basis));
+        if (h.original) c.appendChild(el("div", "orig", "原文：" + h.original));
+        if (h.evidence_required && h.evidence_required.length) {
+          c.appendChild(el("div", "basis", "应附证据：" + h.evidence_required.join("、")));
+        }
+        if (h.disposal_ref && h.disposal_ref.length) {
+          c.appendChild(el("div", "basis", "处置依据：" + h.disposal_ref.join("、")));
+        }
+        inner.appendChild(c);
+      });
+      acc.appendChild(inner);
+      box.appendChild(acc);
+    }
+
+    if (pend.length) {
+      box.appendChild(el("div", "sec-title", "待核实（" + pend.length + "）"));
+      const acc = el("details", "acc");
+      acc.appendChild(el("summary", null, "信息不足、需要现场补充的条款"));
+      const inner = el("div", "inner");
+      pend.forEach(p => {
+        const c = el("div", "clause p");
+        c.appendChild(el("div", "cid", p.clause_id || ""));
+        if (p.detail) c.appendChild(el("div", "basis", p.detail));
+        if (p.need_ask && p.need_ask.length) {
+          p.need_ask.forEach(q => c.appendChild(el("div", "orig", "待问：" + (q.question || q.field))));
+        }
+        inner.appendChild(c);
+      });
+      acc.appendChild(inner);
+      box.appendChild(acc);
+    }
+
+    if (res.ask_batch && res.ask_batch.length) {
+      box.appendChild(el("div", "sec-title", "本轮追问"));
+      const acc = el("details", "acc");
+      acc.open = true;
+      acc.appendChild(el("summary", null, "向执法人员提出的 " + res.ask_batch.length + " 个问题"));
+      const inner = el("div", "inner");
+      res.ask_batch.forEach((q, i) => {
+        inner.appendChild(el("div", "orig", (i + 1) + ". " + (q.question || q.field)));
+      });
+      acc.appendChild(inner);
+      box.appendChild(acc);
+    }
+
+    if (na.length) {
+      box.appendChild(el("div", "sec-title", "不适用（" + na.length + "）"));
+      const acc = el("details", "acc");
+      acc.appendChild(el("summary", null, "前置条件不成立、本次不判定的条款"));
+      const inner = el("div", "inner");
+      na.forEach(n => {
+        const c = el("div", "clause n");
+        c.appendChild(el("div", "cid", n.clause_id || ""));
+        if (n.basis) c.appendChild(el("div", "basis", n.basis));
+        inner.appendChild(c);
+      });
+      acc.appendChild(inner);
+      box.appendChild(acc);
+    }
+  }
+
+  function renderDiag(info){
+    const box = $("#tab-diag");
+    box.innerHTML = "";
+    const dl = el("div", "kv");
+
+    function kv(k, v){
+      dl.appendChild(el("dt", null, k));
+      dl.appendChild(el("dd", null, v == null || v === "" ? "—" : String(v)));
+    }
+    kv("本次链路", info.chain);
+    kv("本地引擎", info.localLatency != null ? info.localLatency + " ms" : "未执行");
+    kv("平台耗时", info.platformLatency != null ? (info.platformLatency / 1000).toFixed(1) + " s" : "未执行");
+    kv("引擎版本", info.engineVersion || "—");
+    kv("会话 ID", sessionId);
+    kv("用到的字段", (info.factsUsed || []).join("、") || "—");
+    kv("兜底抽取", info.extracted && Object.keys(info.extracted).length
+        ? JSON.stringify(info.extracted) : "—");
+    box.appendChild(dl);
+
+    if (info.rawLocal || info.rawPlatform) {
+      box.appendChild(el("div", "divider"));
+      if (info.rawLocal) {
+        box.appendChild(el("div", "sec-title", "本地引擎原始返回"));
+        const p1 = el("pre", "json");
+        p1.textContent = JSON.stringify(info.rawLocal, null, 2);
+        box.appendChild(p1);
+      }
+      if (info.rawPlatform) {
+        box.appendChild(el("div", "sec-title", "平台原始返回"));
+        const p2 = el("pre", "json");
+        p2.textContent = JSON.stringify(info.rawPlatform, null, 2);
+        box.appendChild(p2);
+      }
+    }
+  }
+
+  // ---------------- Tab ----------------
+  document.querySelectorAll(".tab").forEach(t => {
+    t.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(x => x.classList.remove("on"));
+      t.classList.add("on");
+      ["verdict", "chain", "diag"].forEach(k => {
+        $("#tab-" + k).style.display = (k === t.dataset.tab) ? "" : "none";
+      });
+    });
+  });
+
+  // ---------------- 主流程 ----------------
+  let busy = false;
+  const sendBtn = $("#send"), input = $("#input");
+
+  async function handleSend(text){
+    text = (text || "").trim();
+    if (!text || busy) return;
+    busy = true; sendBtn.disabled = true;
+    addMsg("user", text);
+    input.value = ""; input.style.height = "auto";
+    const bot = addMsg("bot", "正在判定…", { muted: true });
+
+    const diag = { chain: "", localLatency: null, platformLatency: null, engineVersion: "", factsUsed: [], extracted: {}, rawLocal: null, rawPlatform: null };
+    let local = null;
+
+    setChain("live", "判定中…");
+
+    // ① 先出本地结果（同一份判定代码，毫秒级）
+    const t0 = performance.now();
+    try {
+      const r = await postJSON("/api/judge", { query: text });
+      if (r.ok && r.json) {
+        local = r.json;
+        diag.localLatency = Math.round(performance.now() - t0);
+        diag.engineVersion = local.engine_version || "";
+        diag.factsUsed = local.facts_used || [];
+        diag.extracted = local._extracted_facts || {};
+        diag.rawLocal = local;
+        diag.chain = "local";
+        renderVerdict(local, "local");
+        renderChain(local);
+        bot.textContent = local.render || "";
+        bot.classList.remove("muted");
+      }
+    } catch (e) {
+      diag.chain = "replay";
+    }
+
+    // ② 本地也失败 → 回放兜底
+    if (!local) {
+      const key = /积尘|木屑|清理/.test(text) ? "hit"
+        : /干式|锁气|卸灰/.test(text) ? "hit"
+        : /粉尘/.test(text) ? "ask" : "need";
+      const rp = REPLAY[key];
+      renderVerdict(rp, "local");
+      renderChain(rp);
+      bot.textContent = rp.render;
+      bot.classList.remove("muted");
+      setChain("bad", "离线回放模式 · 非实时");
+      diag.chain = "replay（离线样本）";
+      renderDiag(diag);
+      busy = false; sendBtn.disabled = false;
+      return;
+    }
+
+    // ③ 平台主路径（配置了 Key 才会成功）
+    let status = { platform_ready: false };
+    try {
+      const sr = await fetch("/api/status").then(r => r.json());
+      status = sr || status;
+    } catch (e) {}
+
+    if (status.platform_ready) {
+      setChain("live", "本地已出结果 · 平台判定中…");
+      try {
+        const pr = await postJSON("/api/agent", { query: text, session_id: sessionId });
+        if (pr.ok && pr.json && pr.json.ok) {
+          diag.platformLatency = pr.json.latency_ms;
+          diag.rawPlatform = pr.json;
+          renderPlatformText(pr.json);
+          setChain("ok", "平台在线 · " + (pr.json.latency_ms / 1000).toFixed(1) + "s");
+          diag.chain = "本地同源引擎 + 平台工作流（双跑对照）";
+        } else {
+          setChain("warn", "已降级本地引擎 · 平台返回异常");
+          diag.chain = "本地同源引擎（平台异常）";
+        }
+      } catch (e) {
+        setChain("warn", "已降级本地引擎 · 平台不可达");
+        diag.chain = "本地同源引擎（平台不可达）";
+      }
+    } else {
+      setChain("ok", "同源判定引擎 · " + diag.localLatency + "ms（平台 Key 未配置）");
+      diag.chain = "本地同源引擎（平台 Key 未配置）";
+    }
+
+    renderDiag(diag);
+    busy = false; sendBtn.disabled = false;
+    input.focus();
+  }
+
+  // ---------------- 快捷场景 ----------------
+  const quick = $("#quick");
+  QUICK.forEach(q => {
+    const b = el("button", "chip", q.label);
+    b.addEventListener("click", () => handleSend(q.text));
+    quick.appendChild(b);
+  });
+
+  sendBtn.addEventListener("click", () => handleSend(input.value));
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
+      e.preventDefault();
+      handleSend(input.value);
+    }
+  });
+  input.addEventListener("input", () => {
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 130) + "px";
+  });
+
+  // 初始化：探测平台是否就绪
+  fetch("/api/status").then(r => r.json()).then(s => {
+    setChain(s.platform_ready ? "ok" : "", s.platform_ready
+      ? "平台已配置 · 双跑对照"
+      : "同源判定引擎就绪 · 平台 Key 未配置");
+  }).catch(() => setChain("", "就绪"));
+})();
+</script>
+</body>
+</html>
